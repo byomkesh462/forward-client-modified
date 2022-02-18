@@ -8,6 +8,7 @@ from pyrogram.errors import FloodWait
 from helpers.filters import FilterMessage
 from helpers.file_size_checker import CheckFileSize
 from helpers.block_exts_handler import CheckBlockedExt
+from helpers.allowed_exts_handler import CheckAllowedExt
 
 
 async def ForwardMessage(client: Client, msg: Message):
@@ -21,10 +22,14 @@ async def ForwardMessage(client: Client, msg: Message):
         if has_blocked_ext is True:
             return 400
         ## --- Check 3 --- ##
+        has_allowed_ext = await CheckAllowedExt(event=msg)
+        if has_allowed_ext is False:
+            return 400
+        ## --- Check 4 --- ##
         file_size_passed = await CheckFileSize(msg=msg)
         if file_size_passed is False:
             return 400
-        ## --- Check 4 --- ##
+        ## --- Check 5 --- ##
         for i in range(len(Config.FORWARD_TO_CHAT_ID)):
             try:
                 if Config.FORWARD_AS_COPY is True:
